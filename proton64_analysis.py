@@ -7,6 +7,36 @@ import glob
 import sys
 
 
+zlab = "/n/holystore01/LABS/iaifi_lab/Users/zimani/datasets"
+
+####### Parameters #######
+save_dir = './data_stats/'
+plot_events = False
+save_stats = True 
+plot_batch = 0
+
+# Files to analyze 
+data_dir = "/n/home11/zimani/latent-diffusion/one_mom_sample/edep_ldm_sample1/"
+
+# Name of output files (saved to save_dir)
+run_name = "edep_ldm_sample1"
+
+use_reco_dedx = True
+reco_model_dir = '/n/home11/zimani/reco_model/'
+reco_model_checkpoint = '/n/home11/zimani/reco_model/checkpoints/ResNet50_edep/ResNet50_epoch38.pt'
+####### End Parameters #######
+
+### Meta parameters ### 
+background_threshold = 5e-2 ## CAREFUL
+minimum_pixels = 5
+minimum_length = 0
+#######################
+
+cnt, min_cnt = 0, 0
+row,col = 0, 0
+fontsize = 20
+lengths,widths,angles,dEdxs  = [], [], [], []
+
 def bresenham_line(x0, y0, x1, y1):
 	"""Generate points of a line using Bresenham's algorithm."""
 	points = []
@@ -31,57 +61,18 @@ def bresenham_line(x0, y0, x1, y1):
 	return points
 
 
-zlab = "/n/holystore01/LABS/iaifi_lab/Users/zimani/datasets"
-
-### Configs ###
-save_dir = './data_stats/'
-plot_events = False
-save_stats = True 
-plot_batch = 0
-###############
-
-### Meta parameters ### 
-background_threshold = 5e-2 ## CAREFUL - hand picked
-minimum_pixels = 5
-minimum_length = 0
-#######################
-
-cnt, min_cnt = 0, 0
-row,col = 0, 0
-fontsize = 20
-lengths,widths,angles,dEdxs  = [], [], [], []
-
-use_reco_dedx = True
 if use_reco_dedx:
 	# Special imports (careful with hardcoded paths)
 	import torch
-	sys.path.append('/n/home11/zimani/reco_model/')
-	from ResNet.ResNet import ResNet50 # slightly modified ResNet50
+	sys.path.append(reco_model_dir)
+	from ResNet.ResNet import ResNet50 # reco momentum model 
 
 	# Load model and weights 
 	model = ResNet50(num_classes=3, channels=1, norm='batch')
 	device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 	model.to(device)
-	checkpoint_name = '/n/home11/zimani/reco_model/checkpoints/ResNet50_edep/ResNet50_epoch38.pt'
-	model.load_state_dict(torch.load(checkpoint_name, weights_only=True)['model_state_dict'])
+	model.load_state_dict(torch.load(reco_model_checkpoint, weights_only=True)['model_state_dict'])
 	model.eval() 
-
-
-# data_dir = zlab + "/protons64_div10_v2/val/"
-# run_name = "protons64_v2_val"
-
-# data_dir = "/n/home11/zimani/latent-diffusion/one_mom_sample/full_sample1/"
-# data_dir = "/n/home11/zimani/make_data/protons64_one_mom_sample1/train/"
-# data_dir = "./event_samples/protons64_cond_attn_x_e10/"
-# run_name = "full_sample1_thresh10x" 
-
-# data_dir = zlab + "/edep_data/sample1_v3/"
-data_dir = "/n/home11/zimani/latent-diffusion/one_mom_sample/edep_ldm_sample1/"
-
-run_name = "edep_ldm_sample1"
-
-# background_threshold *= 5 
-
 
 data_range = len(glob.glob(data_dir+"*.npy"))
 if data_range == 0:
@@ -93,6 +84,7 @@ if data_range == 0:
 if len(glob.glob(data_dir+"*mom*.npy")) > 0: 
 	data_range = data_range // 2 
 
+## Main analysis loop 
 for batch_num in tqdm(range(data_range)): 
 
 	try: 
@@ -108,7 +100,7 @@ for batch_num in tqdm(range(data_range)):
 		cols = 4
 		fig, axes = plt.subplots(rows, cols, figsize=(8, 9))
 		# fig.suptitle("SampleA: Length | Width | Angle", fontsize=fontsize) 
-		fig.suptitle("Sample1 Threshx10", fontsize=fontsize)
+		fig.suptitle("Sample1", fontsize=fontsize)
 
 	# Reco Momentum for Batch 
 	if use_reco_dedx:
