@@ -31,18 +31,19 @@ dir = "./data_stats/"
 plot_dir = "./plots/"
 
 run1_run = "edep_ldm_sample1"
-run1_lengths = np.load(dir+run1_run+"_lengths.npy") 
-run1_dEdx = np.load(dir+run1_run+"_dEdxs.npy")
-run1_name = "generated_sample1"
-run1_name += " ("+str(len(run1_lengths))+")"
+run1_legend = "generated_sample1"
 
 run2_run = "edep_sample1_v3"
+run2_legend = "simulation_sample1"
+
+
+run1_lengths = np.load(dir+run1_run+"_lengths.npy") 
+run1_dEdx = np.load(dir+run1_run+"_dEdxs.npy")
+run1_legend += " ("+str(len(run1_lengths))+")"
+
 run2_lengths = np.load(dir+run2_run+"_lengths.npy") 
 run2_dEdx = np.load(dir+run2_run+"_dEdxs.npy")
-run2_name = "simulation_sample1"
-run2_name += " ("+str(len(run2_lengths))+")"
-
-
+run2_legend += " ("+str(len(run2_lengths))+")"
 
 
 ##### Plotting #####
