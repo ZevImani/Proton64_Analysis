@@ -3,11 +3,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+### Configs ###
+
+analysis_dir = "./data_stats/"
+plot_dir = "./plots/"
+
+plot_run1 = True
+run1_name = "edep_sample1_v3"
+run1_legend = "simulation_sample1"
+  
+plot_run2 = True 
+run2_name = "edep_ldm_sample1"
+run2_legend = "generated_sample1"
+
+plot_run3 = False
+run3_name = "edep_sample1_v3"
+run3_legend = "Sim_sample1_v3_5x"
+ 
+plot_run4 = False 
+run4_name = "edep_sample1_v2"
+run4_legend = "sim_sample1_v2"
+
+# Include a single true event for comparison 
 use_single_event = False
+
+### End Configs ###
+
 if use_single_event: 
 	event_name = "sample1.npy"
 	single_event = np.load("single_event_samples/"+event_name, allow_pickle=True).item()
-	# print(single_event)
 	event = single_event['image']
 	event_mom = single_event['momentum']
 
@@ -17,46 +41,35 @@ if use_single_event:
 	length, width, rad_angle, dEdx, reco_mom = analyse_event(reco_model, event)
 	single_event_color = 'purple'
 
-### Configs ###
-
-dir = "./data_stats/"
-plot_dir = "./plots/"
-
-run1_name = "edep_sample1_v3"
-run1_legend = "simulation_sample1"
-
-run2_name = "edep_ldm_sample1"
-run2_legend = "generated_sample1"
-
-run3_name = "edep_sample1_v3"
-run3_legend = "Sim_sample1_v3_5x"
-
-run4_name = "edep_sample1_v2"
-run4_legend = "sim_sample1_v2"
-
-### End Configs ###
-
 os.makedirs(plot_dir, exist_ok=True)
 
-run1_lengths = np.load(dir+run1_name+"_lengths.npy") 
-run1_widths = np.load(dir+run1_name+"_widths.npy") 
-run1_angles = np.load(dir+run1_name+"_angles.npy")
-run1_legend += " ("+str(len(run1_lengths))+")"
+if plot_run1: 
+	run1_lengths = np.load(analysis_dir+run1_name+"_lengths.npy") 
+	run1_widths = np.load(analysis_dir+run1_name+"_widths.npy") 
+	run1_angles = np.load(analysis_dir+run1_name+"_angles.npy")
+	run1_angles = np.rad2deg(run1_angles)
+	run1_legend += " ("+str(len(run1_lengths))+")"
 
-run2_lengths = np.load(dir+run2_name+"_lengths.npy") 
-run2_widths = np.load(dir+run2_name+"_widths.npy") 
-run2_angles = np.load(dir+run2_name+"_angles.npy")
-run2_legend += " ("+str(len(run2_lengths))+")"
+if plot_run2:
+	run2_lengths = np.load(analysis_dir+run2_name+"_lengths.npy") 
+	run2_widths = np.load(analysis_dir+run2_name+"_widths.npy") 
+	run2_angles = np.load(analysis_dir+run2_name+"_angles.npy")
+	run2_angles = np.rad2deg(run2_angles)
+	run2_legend += " ("+str(len(run2_lengths))+")"
 
-run3_lengths = np.load(dir+run3_name+"_lengths.npy") 
-run3_widths = np.load(dir+run3_name+"_widths.npy") 
-run3_angles = np.load(dir+run3_name+"_angles.npy")
-run3_legend += " ("+str(len(run3_lengths))+")"
+if plot_run3:
+	run3_lengths = np.load(analysis_dir+run3_name+"_lengths.npy") 
+	run3_widths = np.load(analysis_dir+run3_name+"_widths.npy") 
+	run3_angles = np.load(analysis_dir+run3_name+"_angles.npy")
+	run3_angles = np.rad2deg(run3_angles)
+	run3_legend += " ("+str(len(run3_lengths))+")"
 
-run4_lengths = np.load(dir+run4_name+"_lengths.npy") 
-run4_widths = np.load(dir+run4_name+"_widths.npy") 
-run4_angles = np.load(dir+run4_name+"_angles.npy")
-run4_legend += " ("+str(len(run4_lengths))+")"
+if plot_run4:
+	run4_lengths = np.load(analysis_dir+run4_name+"_lengths.npy") 
+	run4_widths = np.load(analysis_dir+run4_name+"_widths.npy") 
+	run4_angles = np.load(analysis_dir+run4_name+"_angles.npy")
+	run4_angles = np.rad2deg(run4_angles)
+	run4_legend += " ("+str(len(run4_lengths))+")"
 
 n_bins = 50
 normalize = True 
@@ -66,10 +79,10 @@ if normalize:
 	y_label = "Fraction of events"
 
 plt.title("Proton Length")
-plt.hist(run1_lengths, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
-plt.hist(run2_lengths, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run3_lengths, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run4_lengths, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run1: plt.hist(run1_lengths, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run2: plt.hist(run2_lengths, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run3: plt.hist(run3_lengths, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run4: plt.hist(run4_lengths, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
 if use_single_event:
 	ymin, ymax = plt.ylim()
 	plt.hist([length], n_bins, color=single_event_color, label="True Length", density=False, histtype='step', stacked=False, fill=False)
@@ -83,14 +96,11 @@ plt.clf()
 
 n_bins = 50
 
-# print(np.sum(run3_widths > 15))
-# print(max(run3_widths))
-
 plt.title("Proton Width")
-plt.hist(run1_widths, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
-plt.hist(run2_widths, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run3_widths, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run4_widths, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run1: plt.hist(run1_widths, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run2: plt.hist(run2_widths, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run3: plt.hist(run3_widths, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run4: plt.hist(run4_widths, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
 if use_single_event:
 	ymin, ymax = plt.ylim()
 	plt.hist([width], n_bins, color=single_event_color, label="True Width", density=True, histtype='step', stacked=False, fill=False)
@@ -105,20 +115,11 @@ plt.clf()
 
 n_bins = 50 
 
-run1_angles = np.rad2deg(run1_angles)
-run2_angles = np.rad2deg(run2_angles)
-run3_angles = np.rad2deg(run3_angles)
-run4_angles = np.rad2deg(run4_angles)
-
-
 plt.title("Proton Angle")
-# plt.hist(run1_angles[run1_angles>50], n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run2_angles[run2_angles>50], n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
-
-plt.hist(run1_angles, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
-plt.hist(run2_angles, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run3_angles, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
-# plt.hist(run4_angles, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run1: plt.hist(run1_angles, n_bins, color='black', label=run1_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run2: plt.hist(run2_angles, n_bins, color='red', label=run2_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run3: plt.hist(run3_angles, n_bins, color='blue', label=run3_legend, density=normalize, histtype='step', stacked=False, fill=False)
+if plot_run4: plt.hist(run4_angles, n_bins, color='green', label=run4_legend, density=normalize, histtype='step', stacked=False, fill=False)
 if use_single_event:
 	ymin, ymax = plt.ylim()
 	plt.hist([np.rad2deg(rad_angle)], n_bins, color=single_event_color, label="True Angle", density=False, histtype='step', stacked=False, fill=False)
@@ -131,4 +132,4 @@ plt.tight_layout()
 plt.savefig(plot_dir+"hist_angle.png")
 plt.clf()
 
-print("Saved hists")
+print("Saved hists to", plot_dir)
